@@ -1,10 +1,6 @@
 {
   "name": "marvel-collector",
   "private": true,
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
   "scripts": {
     "build": "turbo run build --parallel",
     "commit": "cz",
@@ -53,6 +49,5 @@
     "prettier": "^2.8.4",
     "turbo": "^1.10.13",
     "typescript": "^5.0.2"
-  },
-  "packageManager": "yarn@3.4.1"
+  }
 }
