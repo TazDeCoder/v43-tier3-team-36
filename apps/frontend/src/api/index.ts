@@ -3,20 +3,20 @@ import type {
   CollectionItemPartial,
   TradeOfferPartial,
   PushNotification,
-} from '@marvel-collector/types';
+} from 'types';
+import type { TradeRequestStatusType } from 'types/inputTypeSchemas/TradeRequestStatusSchema';
 
 import type TComicType from '@/types/comic';
 
-const MARVEL_API_KEY = process.env.NEXT_PUBLIC_MARVEL_API_KEY;
-const MARVEL_API_URL = `${process.env.NEXT_PUBLIC_MARVEL_API_URL}/v1/public/`;
+const MARVEL_API_KEY = process.env.NEXT_PUBLIC_MARVEL_PUBLIC_KEY;
+const MARVEL_API_URL = process.env.NEXT_PUBLIC_MARVEL_API_URL;
 const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL;
-const API_SEARCH_LIMIT = 20;
 
 export const searchComics = async (
   comicTitle: string,
 ): Promise<TComicType[]> => {
   const response = await fetch(
-    `${MARVEL_API_URL}/comics?titleStartsWith=${comicTitle}&apikey=${MARVEL_API_KEY}&limit=${API_SEARCH_LIMIT}`,
+    `${MARVEL_API_URL}/comics?titleStartsWith=${comicTitle}&apikey=${MARVEL_API_KEY}&limit=50`,
   );
   const json = await response.json();
   return json.data.results;
@@ -38,49 +38,45 @@ export type SignupOptions = {
   password: string;
 };
 
-// NOTE: this api service is ONLY used for authentication flow
-export async function signup(signupCredentials: SignupOptions) {
+type LoginOptions = {
+  username: string;
+  password: string;
+};
+
+export async function signup(data: SignupOptions) {
   const res = await fetch(`${SERVER_URL}/api/v1/register`, {
     method: 'POST',
     credentials: 'include',
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
     },
-    body: JSON.stringify(signupCredentials),
+    body: JSON.stringify(data),
   });
 
-  const data = await res.json();
-
   if (!res.ok) {
-    throw new Error(data.message || 'Something went wrong!');
+    throw new Error();
   }
 
-  return data;
+  const result = await res.json();
+  return result;
 }
 
-export type LoginOptions = {
-  username: string;
-  password: string;
-};
-
-// NOTE: this api service is ONLY used for authentication flow
-export async function login(loginCredentials: LoginOptions) {
+export async function login(data: LoginOptions) {
   const res = await fetch(`${SERVER_URL}/api/v1/login`, {
     method: 'POST',
     credentials: 'include',
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
     },
-    body: JSON.stringify(loginCredentials),
+    body: JSON.stringify(data),
   });
 
-  const data = await res.json();
-
   if (!res.ok) {
-    throw new Error(data.message || 'Something went wrong!');
+    throw new Error();
   }
 
-  return data;
+  const result = await res.json();
+  return result;
 }
 
 export const getCurrentUserDetails = async (): Promise<User> => {
@@ -264,8 +260,34 @@ export type TRequestTradeOfferBody = {
 export const requestTradeOffer = async (
   data: TRequestTradeOfferBody,
 ): Promise<any> => {
-  const res = await fetch(`${SERVER_URL}/api/v1/trade-request`, {
+  const res = await fetch(`${SERVER_URL}/api/v1/trade-requests`, {
     method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+    },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    throw new Error(`${json.error} (${res.status})`);
+  }
+
+  return json.message;
+};
+
+export type TRespondTradeOfferBody = {
+  status: Omit<TradeRequestStatusType, 'PENDING'>;
+};
+
+export const respondTradeOffer = async ({
+  tradeRequestId,
+  ...data
+}: TRespondTradeOfferBody & { tradeRequestId: string }): Promise<any> => {
+  const res = await fetch(`${SERVER_URL}/api/v1/trades/${tradeRequestId}`, {
+    method: 'PATCH',
     credentials: 'include',
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
