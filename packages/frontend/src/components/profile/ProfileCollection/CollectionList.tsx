@@ -7,7 +7,7 @@ import { Trash2 } from 'lucide-react';
 import type { CollectionItemPartial } from '@marvel-collector/types';
 
 import Loader from '@/components/common/Loader';
-import useAlertStore from '@/store/store';
+import useBoundStore from '@/store';
 import { getCurrentUserDetails, removeComic } from '@/api';
 import { COMIC_FALLBACK } from '@/data/constants';
 
@@ -18,7 +18,7 @@ type Props = {
 };
 
 const CollectionList: React.FC<Props> = ({ isPick, isEdit, onPick }) => {
-  const setAlert = useAlertStore((state) => state.setAlert);
+  const setAlert = useBoundStore((store) => store.setAlert);
   const queryClient = useQueryClient();
   const { data: userData, isLoading } = useQuery(['user'], {
     queryFn: getCurrentUserDetails,

@@ -1,5 +1,5 @@
 describe('The Auth pages', () => {
-  const username = `cypress-${Math.random().toString().slice(2, -11)}`;
+  const username = `cypress-${Math.random().toString().slice(-9)}`;
   const password = 'password123';
 
   it('0100:01-register a new user', () => {
@@ -7,6 +7,9 @@ describe('The Auth pages', () => {
     cy.findByRole('textbox', { name: /first name/i }).type('Foo');
     cy.findByRole('textbox', { name: /last name/i }).type('Baz');
     cy.findByRole('textbox', { name: /username/i }).type(username);
+    cy.findByRole('combobox', { name: /country/i }).type('Cyprus');
+    cy.findByText(/cyprus/i).click();
+    cy.findByRole('textbox', { name: /city/i }).type('Unknown');
     cy.findByRole('textbox', { name: /email address/i }).type(
       `${username}@fakemail.com`,
     );

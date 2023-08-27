@@ -1,25 +1,26 @@
 import { ReactElement, useState } from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useMutation, useQuery } from '@tanstack/react-query';
+
+import { NextPageWithLayout } from '../_app';
 import { InputField } from '@/components/ui/Input';
 import { addComic, searchComics } from '@/api';
 import { useDebounce } from '@/hooks';
 import AuthLayout from '@/layouts/AuthLayout';
+import type TComicItem from '@/types/comic';
 import ComicList from '@/components/comic/ComicList';
-import { NextPageWithLayout } from '../_app';
-import TComicItem from '@/types/comic';
 import AddComic from '@/components/comic/AddComic';
+import { ComicDetail } from '@/components/comic/ComicDetail';
 import { createImageUrl } from '@/utils';
-import ExploreLayout from '@/layouts/ExploreLayout';
-import useAlertStore from '@/store/store';
-import { ComicDetail } from '../../components/comic/ComicDetail';
+import useBoundStore from '@/store';
+import ExploreNav from '@/components/explore/ExploreNav';
 
 const ComicSearch: NextPageWithLayout = () => {
   const [value, setValue] = useState('');
   const [selected, setSelected] = useState<TComicItem>();
   const [comicToView, setComicToView] = useState<TComicItem>();
 
-  const setAlert = useAlertStore((state) => state.setAlert);
+  const setAlert = useBoundStore((store) => store.setAlert);
 
   const handleChange = (inputValue: string) => setValue(inputValue);
   const debouncedValue = useDebounce(value, 500);
@@ -47,7 +48,8 @@ const ComicSearch: NextPageWithLayout = () => {
   });
 
   return (
-    <main>
+    <main className="pt-8 lg:pt-9 px-4 lg:px-7 pb-9 lg:pb-10">
+      <ExploreNav />
       <div className="my-3 w-100">
         <InputField
           placeholder="Search for a comic book..."
@@ -99,8 +101,7 @@ ComicSearch.getLayout = function getLayout(page: ReactElement) {
         },
       }}
     >
-      {/* nested explore layout */}
-      <ExploreLayout>{page}</ExploreLayout>
+      {page}
     </AuthLayout>
   );
 };

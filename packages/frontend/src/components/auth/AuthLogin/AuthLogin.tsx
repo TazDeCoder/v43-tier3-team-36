@@ -3,11 +3,12 @@ import Link from 'next/link';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import ExistingUserForm, { type TFormSchema } from './ExistingUserForm';
-import UseAlertStore from '@/store/store';
-import { getCurrentUserDetails, login } from '@/api';
+import useBoundStore from '@/store';
+import { getCurrentUserDetails } from '@/api';
 
 const AuthLogin: React.FC = () => {
-  const setAlert = UseAlertStore((state) => state.setAlert);
+  const login = useBoundStore((store) => store.login);
+  const setAlert = useBoundStore((store) => store.setAlert);
   const router = useRouter();
   const queryClient = useQueryClient();
 

@@ -7,15 +7,16 @@ import type {
 
 import type TComicType from '@/types/comic';
 
-const MARVEL_API_KEY = process.env.NEXT_PUBLIC_MARVEL_PUBLIC_KEY;
-const MARVEL_API_URL = process.env.NEXT_PUBLIC_MARVEL_API_URL;
+const MARVEL_API_KEY = process.env.NEXT_PUBLIC_MARVEL_API_KEY;
+const MARVEL_API_URL = `${process.env.NEXT_PUBLIC_MARVEL_API_URL}/v1/public/`;
 const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL;
+const API_SEARCH_LIMIT = 20;
 
 export const searchComics = async (
   comicTitle: string,
 ): Promise<TComicType[]> => {
   const response = await fetch(
-    `${MARVEL_API_URL}/comics?titleStartsWith=${comicTitle}&apikey=${MARVEL_API_KEY}&limit=50`,
+    `${MARVEL_API_URL}/comics?titleStartsWith=${comicTitle}&apikey=${MARVEL_API_KEY}&limit=${API_SEARCH_LIMIT}`,
   );
   const json = await response.json();
   return json.data.results;
@@ -37,45 +38,49 @@ export type SignupOptions = {
   password: string;
 };
 
-type LoginOptions = {
-  username: string;
-  password: string;
-};
-
-export async function signup(data: SignupOptions) {
+// NOTE: this api service is ONLY used for authentication flow
+export async function signup(signupCredentials: SignupOptions) {
   const res = await fetch(`${SERVER_URL}/api/v1/register`, {
     method: 'POST',
     credentials: 'include',
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(signupCredentials),
   });
 
+  const data = await res.json();
+
   if (!res.ok) {
-    throw new Error();
+    throw new Error(data.message || 'Something went wrong!');
   }
 
-  const result = await res.json();
-  return result;
+  return data;
 }
 
-export async function login(data: LoginOptions) {
+export type LoginOptions = {
+  username: string;
+  password: string;
+};
+
+// NOTE: this api service is ONLY used for authentication flow
+export async function login(loginCredentials: LoginOptions) {
   const res = await fetch(`${SERVER_URL}/api/v1/login`, {
     method: 'POST',
     credentials: 'include',
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(loginCredentials),
   });
 
+  const data = await res.json();
+
   if (!res.ok) {
-    throw new Error();
+    throw new Error(data.message || 'Something went wrong!');
   }
 
-  const result = await res.json();
-  return result;
+  return data;
 }
 
 export const getCurrentUserDetails = async (): Promise<User> => {
@@ -218,7 +223,9 @@ export const createTradeOffer = async (
 
 export const getUsersWithComic = async (comicId: number) => {
   const res = await fetch(`${SERVER_URL}/api/v1/users/comic/${comicId}`);
-  const json: Array<Pick<User, 'username' | 'location' | 'profileImage'>> = await res.json();
+  const json: Array<
+  Pick<User, 'username' | 'city' | 'country' | 'profileImage'>
+  > = await res.json();
   return json;
 };
 

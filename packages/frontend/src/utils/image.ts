@@ -1,4 +1,4 @@
-import { TComicImages } from '@/types/comic';
+import type { TComicImages } from '@/types/comic';
 
 export const createImageUrl = (images: TComicImages) => {
   const [firstImage] = images;

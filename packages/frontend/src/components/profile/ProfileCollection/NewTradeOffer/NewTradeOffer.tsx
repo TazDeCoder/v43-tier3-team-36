@@ -8,7 +8,7 @@ import type { TradeOfferTypeType } from '@marvel-collector/types/generated/input
 
 import { Modal, SwitchToggle } from '@/components/ui';
 import AddTradeForm, { type TFormSchema } from './AddTradeForm';
-import useAlertStore from '@/store/store';
+import useBoundStore from '@/store';
 import { createTradeOffer } from '@/api';
 import { DELAY_CLOSE_MS, COMIC_FALLBACK } from '@/data/constants';
 
@@ -18,7 +18,7 @@ type Props = {
 };
 
 const NewTradeOffer: React.FC<Props> = ({ comic, onClose }) => {
-  const setAlert = useAlertStore((state) => state.setAlert);
+  const setAlert = useBoundStore((store) => store.setAlert);
   const newTradeMutation = useMutation({
     mutationFn: createTradeOffer,
     onSuccess: (message) => {

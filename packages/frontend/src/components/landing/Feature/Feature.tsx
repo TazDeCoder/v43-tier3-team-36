@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import Illustration, { IllustrationProps } from '../Illustration';
+import Illustration, { type IllustrationProps } from '../Illustration';
 
 type FeatureProps = {
   heading: string;

@@ -1,8 +1,8 @@
 import { Alert } from '@/components/ui/Alert';
-import UseAlertStore from '@/store/store';
+import useBoundStore from '@/store';
 
 const AlertPopup = () => {
-  const alert = UseAlertStore((state) => state.alert);
+  const alert = useBoundStore((store) => store.alert);
 
   if (!alert.message) return null;
 

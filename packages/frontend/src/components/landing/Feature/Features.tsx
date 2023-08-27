@@ -1,7 +1,7 @@
 /* eslint-disable import/extensions */
-import Collector from '@/assets/collector.png';
-import Offers from '@/assets/offers.png';
-import Comics from '@/assets/comics.png';
+import Collector from '@/../public/collector.png';
+import Offers from '@/../public/offers.png';
+import Comics from '@/../public/comics.png';
 import Feature from './Feature';
 
 const FeatureData = [

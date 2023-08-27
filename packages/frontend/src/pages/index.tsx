@@ -1,21 +1,26 @@
-import { type ReactElement } from 'react';
+import type { ReactElement } from 'react';
+
 import type { NextPageWithLayout } from './_app';
 import Layout from '@/layouts/Layout';
-import Hero from '@/components/landing/Hero';
-import { CTA, Features, Stats } from '@/components/landing';
-import LandingLayout from '@/layouts/LandingLayout';
+import {
+  Hero, Footer, Nav, CTA, Features, Stats,
+} from '@/components/landing';
 
 const Home: NextPageWithLayout = () => (
-  <>
-    <Hero
-      label="The #1 comic marketplace"
-      headline="Trade comics easily"
-      uspText="Welcome to Marvel Collector, where we take comic trade to a whole new level! Our market-place offers to buy, sell and exchange comic books from anywhere."
-    />
-    <Features />
-    <Stats />
-    <CTA heading="Ready to go next level?" />
-  </>
+  <main>
+    <div className="max-w-[1400px] w-full mx-auto">
+      <Nav />
+    </div>
+    <div className="max-w-[1240px] w-full mx-auto px-4">
+      <Hero />
+      <Features />
+      <Stats />
+      <CTA />
+    </div>
+    <div className="max-w-[1400px] w-full mx-auto">
+      <Footer />
+    </div>
+  </main>
 );
 
 Home.getLayout = function getLayout(page: ReactElement) {
@@ -29,7 +34,7 @@ Home.getLayout = function getLayout(page: ReactElement) {
         },
       }}
     >
-      <LandingLayout>{page}</LandingLayout>
+      {page}
     </Layout>
   );
 };

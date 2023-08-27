@@ -1,10 +1,16 @@
 import { ReactElement } from 'react';
-import { NextPageWithLayout } from '../_app';
+
+import type { NextPageWithLayout } from '../_app';
 import AuthLayout from '@/layouts/AuthLayout';
-import ExploreLayout from '@/layouts/ExploreLayout';
+import ExploreNav from '@/components/explore/ExploreNav';
 import ExploreOffers from '@/components/explore/ExploreOffers';
 
-const Offers: NextPageWithLayout = () => <ExploreOffers />;
+const Offers: NextPageWithLayout = () => (
+  <main className="pt-8 lg:pt-9 px-4 lg:px-7 pb-9 lg:pb-10">
+    <ExploreNav />
+    <ExploreOffers />
+  </main>
+);
 
 Offers.getLayout = function getLayout(page: ReactElement) {
   return (
@@ -17,7 +23,7 @@ Offers.getLayout = function getLayout(page: ReactElement) {
         },
       }}
     >
-      <ExploreLayout>{page}</ExploreLayout>
+      {page}
     </AuthLayout>
   );
 };

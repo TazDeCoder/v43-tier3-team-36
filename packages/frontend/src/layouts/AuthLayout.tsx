@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { useMemo, useState } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useChannel, useEvent } from '@harelpls/use-pusher';
@@ -7,10 +7,11 @@ import {
   Menu, Bell, Bookmark, ArrowRight, ArrowLeft, X,
 } from 'lucide-react';
 
+import { useRouter } from 'next/navigation';
 import { Avatar } from '@/components/ui';
 import { SEO, type SEOProps } from './SEO';
 import AlertPopup from '@/components/common/AlertPopup/AlertPopup';
-import useAlertStore from '@/store/store';
+import useBoundStore from '@/store';
 import { getUserNotifications, patchUserNotifications } from '@/api';
 
 const PROFILE_AVATAR_FALLBACK = 'https://placekeanu.com/250/g';
@@ -39,10 +40,9 @@ const Navigation: React.FC<NavigationProps> = ({ onShowNotifications }) => {
                   <Link href="/profile">Profile</Link>
                 </li>
                 <li>
-                  <Link href="/trades">Trades</Link>
-                </li>
-                <li>
-                  <Link href="/forums">Forums</Link>
+                  <p className="text-gray-300 font-dmsans text-2xl font-bold">
+                    Forums
+                  </p>
                 </li>
               </ul>
               <ArrowRight
@@ -61,7 +61,9 @@ const Navigation: React.FC<NavigationProps> = ({ onShowNotifications }) => {
                 <Link href="/profile">Profile</Link>
               </li>
               <li>
-                <Link href="/forums">Forums</Link>
+                <p className="text-gray-300 font-dmsans text-2xl font-bold">
+                  Forums
+                </p>
               </li>
             </ul>
           </div>
@@ -88,7 +90,7 @@ type NotificationsProps = {
 };
 
 const Notifications: React.FC<NotificationsProps> = ({ onClose }) => {
-  const setAlert = useAlertStore((state) => state.setAlert);
+  const setAlert = useBoundStore((store) => store.setAlert);
   const { data: notificationsData } = useQuery(['user-notifications'], {
     queryFn: getUserNotifications,
     onError: (err: Error) => {
@@ -171,7 +173,9 @@ type LayoutProps = {
 
 const AuthLayout: React.FC<LayoutProps> = ({ children, seo }) => {
   const queryClient = useQueryClient();
-  const setAlert = useAlertStore((state) => state.setAlert);
+  const router = useRouter();
+  const isLoggedIn = useBoundStore((store) => store.isLoggedIn);
+  const setAlert = useBoundStore((store) => store.setAlert);
   // NOTE: Type for User from @marvel-collector/types
   // is quite misleading...
   const currentUserChannel = useChannel(
@@ -187,6 +191,12 @@ const AuthLayout: React.FC<LayoutProps> = ({ children, seo }) => {
     }
   });
   const [showNotifications, setShowNotifications] = useState(false);
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      router.replace('/');
+    }
+  }, [isLoggedIn, router]);
 
   return (
     <>

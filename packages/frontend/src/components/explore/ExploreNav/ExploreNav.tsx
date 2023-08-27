@@ -1,7 +1,7 @@
-import Link from 'next/link';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 
-const Navigation: React.FC = () => {
+const ExploreNav: React.FC = () => {
   const { pathname } = useRouter();
 
   return (
@@ -44,4 +44,4 @@ const Navigation: React.FC = () => {
   );
 };
 
-export default Navigation;
+export default ExploreNav;

@@ -4,7 +4,7 @@ import { Modal, Button } from '@/components/ui';
 import ExchangeComics from './ExchangeComics';
 import { requestTradeOffer } from '@/api';
 import { DELAY_CLOSE_MS } from '@/data/constants';
-import useAlertStore from '@/store/store';
+import useBoundStore from '@/store';
 
 type Props = {
   offer: any;
@@ -13,7 +13,7 @@ type Props = {
 
 const TradeOfferDialog: React.FC<Props> = ({ offer, onClose }) => {
   const { type, wantedComicId } = offer;
-  const setAlert = useAlertStore((state) => state.setAlert);
+  const setAlert = useBoundStore((store) => store.setAlert);
   const requestTradeMutation = useMutation({
     mutationFn: requestTradeOffer,
     onSuccess: (message) => {

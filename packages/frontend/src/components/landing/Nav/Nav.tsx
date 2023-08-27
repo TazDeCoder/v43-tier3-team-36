@@ -1,10 +1,11 @@
 /* eslint-disable import/extensions */
 import Image from 'next/image';
-import { AlignJustify, X } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 import clsx from 'clsx';
-import Link from 'next/link';
-import Logo from '@/assets/logo.svg';
+import { AlignJustify, X } from 'lucide-react';
+
+import Logo from '@/../public/logo.svg';
 import { Button } from '@/components/ui';
 
 const Nav = () => {
@@ -47,9 +48,9 @@ const Nav = () => {
           </div>
           <ul className="flex flex-col gap-6 md:gap-4 md:flex-row">
             <li>
-              <Link href="/explore">
+              <Link href="/login">
                 <Button className="text-black text-sm border border-black bg-white rounded-full">
-                  Explore
+                  Login
                 </Button>
               </Link>
             </li>

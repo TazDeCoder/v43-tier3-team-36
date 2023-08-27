@@ -1,12 +1,10 @@
 /* eslint-disable import/extensions */
+import Link from 'next/link';
+
 import { Button } from '@/components/ui';
 import CTAListItem from './CTAListItem';
 import Illustration from '../Illustration';
-import Collection from '@/assets/collection.png';
-
-type CTAProps = {
-  heading: string;
-};
+import Collection from '@/../public/collection.png';
 
 const CTAListData = [
   {
@@ -20,12 +18,12 @@ const CTAListData = [
   },
 ];
 
-const CTA: React.FC<CTAProps> = ({ heading }) => (
+const CTA: React.FC = () => (
   <section className="py-14 lg:py-28 flex flex-col md:flex-row gap-10">
     <div className="md:basis-1/2 flex flex-col gap-8">
       <div>
         <h2 className="text-3xl lg:text-5xl font-bold font-dmsans">
-          {heading}
+          Ready to go next level?
         </h2>
       </div>
       <div>
@@ -35,8 +33,12 @@ const CTA: React.FC<CTAProps> = ({ heading }) => (
           ))}
         </ul>
       </div>
-      <div>
-        <Button className="w-full text-sm rounded-full">Trade now</Button>
+      <div className="flex flex-col gap-3 max-w-md mx-auto">
+        <Link href="signup">
+          <Button className="w-full py-2.5 text-sm rounded-full">
+            Trade Now
+          </Button>
+        </Link>
       </div>
     </div>
     <Illustration

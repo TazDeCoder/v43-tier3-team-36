@@ -7,7 +7,7 @@ import {
 } from '@/components/common/OfferItem/OfferItem';
 import TradeOfferDialog from './TradeOfferDialog';
 import { TTradeOfferQuery, getTradeOffers } from '@/api';
-import useAlertStore from '@/store/store';
+import useBoundStore from '@/store';
 import Loader from '@/components/common/Loader';
 
 const HEADINGS = [
@@ -39,7 +39,7 @@ type Props = {
 };
 
 const Offers: React.FC<Props> = ({ query, onProfile }) => {
-  const setAlert = useAlertStore((state) => state.setAlert);
+  const setAlert = useBoundStore((store) => store.setAlert);
   const { data: offersData, isLoading } = useQuery(['offers'], {
     queryFn: () => getTradeOffers(query),
     onError: (err) => {

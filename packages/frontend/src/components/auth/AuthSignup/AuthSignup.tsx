@@ -3,11 +3,11 @@ import Link from 'next/link';
 import { useMutation } from '@tanstack/react-query';
 
 import NewUserForm, { type TFormSchema } from './NewUserForm';
-import UseAlertStore from '@/store/store';
-import { signup } from '@/api';
+import useBoundStore from '@/store';
 
 const AuthSignup: React.FC = () => {
-  const setAlert = UseAlertStore((state) => state.setAlert);
+  const signup = useBoundStore((store) => store.signup);
+  const setAlert = useBoundStore((store) => store.setAlert);
   const router = useRouter();
 
   const NewUserMutation = useMutation({
