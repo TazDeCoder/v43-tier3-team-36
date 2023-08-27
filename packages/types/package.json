@@ -1,7 +1,0 @@
-{
-  "name": "types",
-  "private": true,
-  "dependencies": {
-    "zod": "^3.21.4"
-  }
-}
