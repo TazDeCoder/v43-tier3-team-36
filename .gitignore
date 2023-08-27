@@ -24,9 +24,11 @@ coverage
 *.log
 yarn-debug.log*
 yarn-error.log*
+.turbo
 
 # cache
 .eslintcache
+.cache/
 
 # builds
 /build

@@ -42,6 +42,7 @@ module.exports = {
             tsx: 'never',
           },
         ],
+        'no-async-promise-executor': 'off',
 
         // prefer named arrow-function components
         'react/function-component-definition': [
@@ -90,11 +91,6 @@ module.exports = {
         '@typescript-eslint/no-unused-vars': 'off',
         // allow local variable scoping
         '@typescript-eslint/no-shadow': 'off',
-        // Carl's function preferences - not mine!
-        'func-names': 'off',
-        'consistent-return': 'off',
-        'prefer-arrow-callback': 'off',
-        "linebreak-style": 0,
       },
     },
   ],

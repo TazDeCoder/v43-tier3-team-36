@@ -2,24 +2,23 @@
   "name": "marvel-collector",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "scripts": {
-    "build": "lerna run build --parallel",
+    "build": "turbo run build --parallel",
     "commit": "cz",
-    "dev": "lerna run dev --parallel",
-    "dev:backend": "lerna run dev --scope backend",
-    "dev:frontend": "lerna run dev --scope frontend",
+    "dev": "turbo run dev --parallel",
+    "dev:backend": "turbo run dev --filter backend",
+    "dev:frontend": "turbo run dev --filter frontend",
     "postinstall": "husky install",
-    "lint": "lerna run lint --parallel",
-    "lint:fix": "lerna run lint:fix --parallel",
-    "start": "lerna run start --parallel",
-    "start:backend": "lerna run start --scope backend",
-    "start:frontend": "lerna run start --scope frontend",
-    "test": "lerna run test --parallel",
-    "test:backend": "lerna run test --scope backend",
-    "test:frontend": "lerna run test --scope frontend",
-    "types:generate": "lerna run prisma:generate --scope backend"
+    "lint": "turbo run lint --parallel",
+    "start": "turbo run start --parallel",
+    "start:backend": "turbo run start --filter backend",
+    "start:frontend": "turbo run start --filter frontend",
+    "test": "turbo run test --parallel",
+    "test:backend": "turbo run test --filter backend",
+    "test:frontend": "turbo run test --filter frontend"
   },
   "commitlint": {
     "extends": [
@@ -50,14 +49,10 @@
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-testing-library": "^5.10.2",
     "husky": "^8.0.3",
-    "lerna": "^6.5.1",
     "lint-staged": "^13.2.0",
     "prettier": "^2.8.4",
-    "prisma": "^4.12.0",
+    "turbo": "^1.10.13",
     "typescript": "^5.0.2"
   },
-  "packageManager": "yarn@3.4.1",
-  "dependencies": {
-    "@types/node": "^18.15.11"
-  }
+  "packageManager": "yarn@3.4.1"
 }
