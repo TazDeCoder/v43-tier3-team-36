@@ -1,5 +1,5 @@
-/* eslint-disable import/no-cycle */
 import { Router } from 'express';
+
 import {
   addCollectionItemToUser,
   createTradeOffers,
@@ -13,53 +13,64 @@ import {
   updatePushNotifications,
   queryCollectorsByUsernameAndCountry,
 } from '../../controllers/collection.controller';
-import { isLoggedIn, validateSchema } from '../../middleware';
+import { isLoggedIn, validateSchema } from '../../middlewares';
 import {
-  AssignComicSchema,
-  TradeOfferSchema,
-  TradeRequestSchema,
-} from '../../utils/customValidation';
+  assignComicSchema,
+  tradeOfferSchema,
+  tradeRequestSchema,
+} from '../../schemas/zodSchemas';
 
-const router = Router();
+const collectionRouter = Router();
 
-router.post(
+// GET Methods
+collectionRouter.get(
+  '/collectors',
+  isLoggedIn,
+  queryCollectorsByUsernameAndCountry,
+);
+collectionRouter.get(
+  '/collections/:userId',
+  isLoggedIn,
+  viewComicBookCollector,
+);
+collectionRouter.get('/trade-offers', isLoggedIn, viewTradeOffers);
+collectionRouter.get('/notifications', isLoggedIn, pushNotifications);
+// POST Methods
+collectionRouter.post(
   '/collections',
   isLoggedIn,
-  validateSchema(AssignComicSchema),
+  validateSchema(assignComicSchema),
   addCollectionItemToUser,
 );
-router.delete('/collections/:comicId', isLoggedIn, editByDeletingUserComic);
-
-router.get('/collections/:userId', isLoggedIn, viewComicBookCollector);
-
-router.get('/collectors', isLoggedIn, queryCollectorsByUsernameAndCountry);
-
-router.post(
+collectionRouter.post(
   '/trade-offers',
   isLoggedIn,
-  validateSchema(TradeOfferSchema),
+  validateSchema(tradeOfferSchema),
   createTradeOffers,
 );
-
-router.delete('/trade-offers/:tradeOfferId', isLoggedIn, deleteTradeOffer);
-
-router.get('/trade-offers', viewTradeOffers);
-
-router.post(
+collectionRouter.post(
   '/trade-requests',
-  validateSchema(TradeRequestSchema),
   isLoggedIn,
+  validateSchema(tradeRequestSchema),
   createTradeRequest,
 );
-
-router.patch('/trades/:tradeRequestId', isLoggedIn, tradeComics);
-
-router.get('/notifications', isLoggedIn, pushNotifications);
-
-router.patch(
+// DELETE Methods
+collectionRouter.delete(
+  '/collections/:comicId',
+  isLoggedIn,
+  editByDeletingUserComic,
+);
+collectionRouter.delete(
+  '/trade-offers/:tradeOfferId',
+  isLoggedIn,
+  deleteTradeOffer,
+);
+// PATCH Methods
+collectionRouter.patch('/trades/:tradeRequestId', isLoggedIn, tradeComics);
+collectionRouter.patch(
   '/notifications/:notificationId',
   isLoggedIn,
   updatePushNotifications,
 );
 
-export default router;
+export default collectionRouter;

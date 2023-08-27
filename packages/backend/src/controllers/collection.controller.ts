@@ -1,10 +1,5 @@
-/* eslint-disable import/no-cycle */
-import { Request, Response } from 'express';
-import { string } from 'zod';
-import {
-  User,
-  UserOptionalDefaults,
-} from '@marvel-collector/types/generated/modelSchema/UserSchema';
+import type { Request, Response } from 'express';
+
 import {
   checkTradedOffer,
   createCollectionItem,
@@ -33,10 +28,10 @@ import {
   viewCollections,
   viewComicBookOffers,
 } from '../services/collection.service';
-import { pusher } from '../app';
+import { pusher } from '../lib/pusher';
+import type { User } from '../passport';
 
 // Assigning Comics to a User collection
-
 export async function addCollectionItemToUser(req: Request, res: Response) {
   const { id } = req.user as User;
   const {
@@ -79,7 +74,6 @@ export async function addCollectionItemToUser(req: Request, res: Response) {
 }
 
 // Endpoint for viewing comic book collector
-
 export async function viewComicBookCollector(req: Request, res: Response) {
   const { userId } = req.params;
 
@@ -159,7 +153,6 @@ export async function queryCollectorsByUsernameAndCountry(
 }
 
 // Edit by deleting comic in a user's collection
-
 export async function editByDeletingUserComic(req: Request, res: Response) {
   const { comicId } = req.params;
   const { id } = req.user as User;
@@ -190,7 +183,6 @@ export async function editByDeletingUserComic(req: Request, res: Response) {
 }
 
 // Creating trade offers
-
 export async function createTradeOffers(req: Request, res: Response) {
   const {
     type, comicId, phoneNumber, email, price, message, wantedComicId,
@@ -269,7 +261,6 @@ export async function createTradeOffers(req: Request, res: Response) {
 }
 
 // Deleting a trade offer
-
 export async function deleteTradeOffer(req: Request, res: Response) {
   const { tradeOfferId } = req.params;
   const { id } = req.user as User;
@@ -299,7 +290,6 @@ export async function deleteTradeOffer(req: Request, res: Response) {
 }
 
 // View Comic Book Offers
-
 export async function viewTradeOffers(req: Request, res: Response) {
   const { country } = req.query as Record<string, string>;
   try {
@@ -353,9 +343,8 @@ export async function viewTradeOffers(req: Request, res: Response) {
         })),
       },
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error fetching trade offers');
+  } catch (err) {
+    return res.status(500).json({ message: 'Error fetching trade offers' });
   }
 }
 
@@ -411,14 +400,12 @@ export async function createTradeRequest(req: Request, res: Response) {
         tradeRequest,
       },
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error creating trade requests');
+  } catch (err) {
+    return res.status(500).json({ message: 'Error creating trade requests' });
   }
 }
 
 // EXCHANGE/SELL COMICS
-
 export async function tradeComics(req: Request, res: Response) {
   const { id } = req.user as User;
   const { tradeRequestId } = req.params;
@@ -491,16 +478,17 @@ export async function tradeComics(req: Request, res: Response) {
       .status(200)
       .json({ message: 'Comic has been successfully purchased' });
   }
+
   if (status === 'DECLINED') {
     await updateTradeRequestStatus(tradeRequestId, status);
     return res.status(400).json({ message: 'Trade request declined' });
   }
+
   await updateTradeRequestStatus(tradeRequestId, status);
   return res.status(400).json({ message: 'Invalid status' });
 }
 
 // Fetch notifications
-
 export async function pushNotifications(req: Request, res: Response) {
   const { id } = req.user as User;
 
@@ -535,14 +523,12 @@ export async function pushNotifications(req: Request, res: Response) {
         },
       },
     });
-  } catch (error) {
-    console.error(error);
-    res.status(404).send({ error: 'User has no notification' });
+  } catch (err) {
+    return res.status(404).json({ message: 'User has no notification' });
   }
 }
 
 // update notification status endpoint
-
 export async function updatePushNotifications(req: Request, res: Response) {
   try {
     const { notificationId } = req.params;
@@ -561,8 +547,7 @@ export async function updatePushNotifications(req: Request, res: Response) {
         notification,
       },
     });
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
     res.status(500).json({ message: 'Error updating notification status.' });
   }
 }

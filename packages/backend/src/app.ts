@@ -1,88 +1,81 @@
-/* eslint-disable import/no-cycle */
-/* eslint-disable import/no-extraneous-dependencies */
-import express, { Request, Response, NextFunction } from 'express';
-import 'express-async-errors';
-import cors from 'cors';
-import passport from 'passport';
-import session from 'express-session';
-import * as dotenv from 'dotenv';
+import 'dotenv/config';
+import type { Request, Response } from 'express';
+import express from 'express';
 import morgan from 'morgan';
-import Pusher from 'pusher';
-import swaggerUI from 'swagger-ui-express';
-import YAML from 'yaml';
 import fs from 'fs';
-import API from './routes';
-import usePassportLocal from './utils/passportLocal';
+import YAML from 'yaml';
+import swaggerUI from 'swagger-ui-express';
+import cors from 'cors';
+import session from 'express-session';
+import passport from 'passport';
+import createError from 'http-errors';
 
-dotenv.config();
-
-const file = fs.readFileSync('./docs/swagger.yaml', 'utf8');
-const swaggerDocument = YAML.parse(file);
+import {
+  IS_DEVELOPMENT,
+  DEV_ORIGIN,
+  PROD_ORIGIN,
+  SESSION_SECRET,
+  PORT,
+} from './config/constants';
+import { passportLocal, passportSessions } from './passport';
+import routes from './routes';
 
 const app = express();
 
+// Setup server logging
+if (IS_DEVELOPMENT) {
+  app.use(morgan('dev'));
+}
+
+// Generate Swagger UI docs
+const file = fs.readFileSync('./docs/swagger.yaml', 'utf8');
+const swaggerDocument = YAML.parse(file);
+app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+
+// Setup CORS (+ handling requests)
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === 'development'
-        ? process.env.DEV_ORIGIN
-        : process.env.PROD_ORIGIN,
+    origin: IS_DEVELOPMENT ? DEV_ORIGIN : PROD_ORIGIN,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   }),
 );
-
-const pusher = new Pusher({
-  appId: process.env.PUSHER_APP_ID || '',
-  key: process.env.PUSHER_APP_KEY || '',
-  secret: process.env.PUSHER_APP_SECRET || '',
-  cluster: process.env.PUSHER_APP_CLUSTER || '',
-  useTLS: true,
-});
-
-export { pusher };
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Setup session-based authentication
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || '',
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
   }),
 );
-app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 app.use(passport.initialize());
 app.use(passport.session());
-usePassportLocal(passport);
+passportSessions();
+passportLocal();
 
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-}
+// Setup API routes
+app.use('/api', routes);
 
-app.get('/api/v1/health', (req: Request, res: Response) => {
-  res.send('Health is ok!');
+// catch 404 and forward to error handler
+app.use((req, res, next) => {
+  next(createError(404));
 });
 
-app.use('/api', API);
+// Custom Error handler
+app.use((err: Error, req: Request, res: Response) => {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = IS_DEVELOPMENT ? err : {};
 
-app.use(
-  (error: Error, request: Request, response: Response, next: NextFunction) => {
-    if (error instanceof Error) {
-      return response.status(400).json({
-        error: error.message,
-      });
-    }
-
-    return response.status(500).json({
-      status: 'Error',
-      message: 'Internal Server Error',
-    });
-  },
-);
-
-const PORT = process.env.PORT || 3000;
+  // render the error page
+  // @ts-ignore
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal Server Error',
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`App running on port ${PORT}...`);

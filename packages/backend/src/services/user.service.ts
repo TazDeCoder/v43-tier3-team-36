@@ -1,64 +1,42 @@
-import { z } from 'zod';
-import {
-  User,
-  UserOptionalDefaults,
-  UserPartial,
-} from '@marvel-collector/types/generated/';
-import prisma from '../database/PrismaClient';
+import { prisma } from '../lib/prisma';
 
-export const createUser = (
-  firstName: string,
-  lastName: string,
-  username: string,
-  password: string,
-  email: string,
-  city: string,
-  country: string,
-  bannerImage: string,
-) => prisma.user.create({
-  data: {
-    firstName,
-    lastName,
-    username,
-    password,
-    email,
-    city,
-    country,
-    bannerImage,
-  },
-});
-
-export const findUserByUsername = async (payload: UserPartial) => {
-  const user = await prisma.user.findUnique({
-    where: {
-      username: payload.username,
-    },
-  });
-  return user;
+export type UserDetails = {
+  firstName: string;
+  lastName: string;
+  username: string;
+  password: string;
+  email: string;
+  city: string;
+  country: string;
+  bannerImage: string;
+  profileImage?: string;
 };
 
-export const findUser = async (payload: UserPartial) => {
+export const createUser = (newUser: UserDetails) =>
+  // eslint-disable-next-line implicit-arrow-linebreak
+  prisma.user.create({
+    data: newUser,
+  });
+
+export const findUserByUsername = async (username: string) => {
   const user = await prisma.user.findUnique({
-    where: {
-      username: payload.username,
-    },
+    where: { username },
   });
 
   return user;
 };
-export const findUserByEmail = async (payload: UserPartial) => {
-  await prisma.user.findUnique({
-    where: {
-      username: payload.email,
-    },
+
+export const findUserByEmail = async (email: string) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
   });
+
+  return user;
 };
 
-export const findUserById = async (payload: UserPartial) => {
+export const findUserById = async (id: string) => {
   const user = await prisma.user.findUnique({
-    where: {
-      id: payload.id,
-    },
+    where: { id },
     include: { collection: true, tradeOffers: true },
   });
 
@@ -67,9 +45,7 @@ export const findUserById = async (payload: UserPartial) => {
 
 export const findUsersWithComic = async (comicId: number) => {
   const users = await prisma.collectionItem.findMany({
-    where: {
-      comicId,
-    },
+    where: { comicId },
     include: { user: true },
   });
 
@@ -87,18 +63,24 @@ export const findUsersWithComic = async (comicId: number) => {
 
   return filtered;
 };
-export const updateUserDetail = async (id: string, dataToUpdate: any) => prisma.user.update({
-  where: { id },
-  data: dataToUpdate,
-  select: {
-    id: true,
-    firstName: true,
-    lastName: true,
-    email: true,
-    username: true,
-    profileImage: true,
-    city: true,
-    country: true,
-    bannerImage: true,
-  },
-});
+
+export const updateUserDetail = async (
+  id: string,
+  dataToUpdate: Partial<UserDetails>,
+) =>
+  // eslint-disable-next-line implicit-arrow-linebreak
+  prisma.user.update({
+    where: { id },
+    data: dataToUpdate,
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      username: true,
+      profileImage: true,
+      city: true,
+      country: true,
+      bannerImage: true,
+    },
+  });

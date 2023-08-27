@@ -1,136 +1,107 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import { Request, Response } from 'express';
+/* eslint-disable consistent-return */
+/* eslint-disable object-curly-newline */
+import type { NextFunction, Request, Response } from 'express';
+import { hash } from 'bcrypt';
 import { faker } from '@faker-js/faker';
+
 import {
-  User,
-  UserOptionalDefaults,
-} from '@marvel-collector/types/generated/modelSchema/UserSchema';
-import {
-  createUser,
-  findUserByEmail,
-  findUserById,
+  type UserDetails,
   findUserByUsername,
+  createUser,
+  findUserById,
   findUsersWithComic,
   updateUserDetail,
 } from '../services/user.service';
-import { hashPassword } from '../utils/hashPassword';
 import { viewUserTradeOffers } from '../services/collection.service';
+import type { User } from '../passport';
 
 export const register = async (
-  req: Request<{}, {}, UserOptionalDefaults>,
+  req: Request,
   res: Response,
+  next: NextFunction,
 ) => {
+  // eslint-disable-next-line operator-linebreak
+  const { firstName, username, password, email, lastName, city, country } =
+    req.body;
+
   try {
-    const {
-      username, password, firstName, email, lastName, city, country,
-    } = req.body;
-    const findUser = await findUserByUsername({ username });
-    if (findUser) {
-      return res.status(400).json({ message: 'username already taken' });
+    const foundUser = await findUserByUsername(username);
+
+    if (foundUser) {
+      return res.status(400).json({ message: 'Username already exists' });
     }
 
-    const hashedPassword = await hashPassword(password);
-
-    const image = (
-      width: number = 1290,
-      height: number = 300,
-      randomize: boolean = false,
-    ): string => faker.image.abstract(width, height, randomize);
-
-    const bannerImage: string = image(1290, 300, false);
-
-    const newUser = await createUser(
+    const hashedPassword = await hash(password, 10);
+    const bannerImage = faker.image.abstract(1290, 300);
+    const newUser = {
       firstName,
       lastName,
       username,
-      hashedPassword,
+      password: hashedPassword,
       email,
       city,
       country,
       bannerImage,
-    );
+    };
 
-    return res.status(201).json({
-      message: 'user created successfully',
-      user: {
-        username,
-        firstName,
-        email,
-        lastName,
-        city,
-        country,
-        bannerImage,
-      },
+    const createdUser = await createUser(newUser);
+
+    req.login(createdUser, (err) => {
+      if (err) {
+        return next(err);
+      }
+
+      return res.status(200).json({ message: 'You have been registered!' });
     });
-  } catch (error) {
-    return res.status(400).json(error);
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : 'Something went wrong!';
+
+    return res.status(400).json({ message: errMsg });
   }
 };
 
+export const logout = async (req: Request, res: Response) => {
+  req.logout((err) => {
+    if (err) {
+      // eslint-disable-next-line operator-linebreak
+      const errMsg =
+        err instanceof Error ? err.message : 'Something went wrong!';
+
+      return res.status(400).json({ message: errMsg });
+    }
+
+    return res.status(200).json({ message: 'Logout successful' });
+  });
+};
+
 // Update user details/Profile
-
-export const updateUser = async (
-  req: Request<{}, {}, UserOptionalDefaults>,
-  res: Response,
-) => {
+export const updateUser = async (req: Request, res: Response) => {
   const { id } = req.user as User;
-  const {
-    firstName,
-    lastName,
-    email,
-    password,
-    username,
-    profileImage,
-    city,
-    country,
-    bannerImage,
-  } = req.body;
+  const { password, ...updatedUserDetails } = req.body;
 
-  const dataToUpdate: any = {};
-  if (firstName) dataToUpdate.firstName = firstName;
-  if (lastName) dataToUpdate.lastName = lastName;
-  if (email) dataToUpdate.email = email;
+  const dataToUpdate: Partial<UserDetails> = updatedUserDetails;
+
   if (password) {
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hash(password, 10);
     dataToUpdate.password = hashedPassword;
   }
-  if (username) dataToUpdate.username = username;
-  if (profileImage) dataToUpdate.profileImage = profileImage;
-  if (city) dataToUpdate.city = city;
-  if (country) dataToUpdate.country = country;
-  if (bannerImage) dataToUpdate.bannerImage = bannerImage;
 
   try {
     const updatedUser = await updateUserDetail(id, dataToUpdate);
 
     return res.status(200).json({
       message: 'user profile successfully updated',
-      data: {
-        updatedUser,
-      },
+      data: { updatedUser },
     });
-  } catch (error) {
-    return res.status(400).json(error);
+  } catch (err) {
+    return res.status(400).json(err);
   }
-};
-
-// eslint-disable-next-line max-len
-
-export const login = async (req: Request, res: Response) => res.status(200).json({ message: 'Login successful' });
-
-export const logout = async (req: Request, res: Response) => {
-  req.logOut((error) => {
-    if (error) {
-      return res.status(400).json(error);
-    }
-    return res.status(200).json({ message: 'Logout successful' });
-  });
 };
 
 export const currentUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.user as User;
-    const user = await findUserById({ id });
+    const user = await findUserById(id);
     const userTradeOffers = await viewUserTradeOffers(id);
 
     return res.status(200).json({
@@ -173,15 +144,17 @@ export const currentUser = async (req: Request, res: Response) => {
         })),
       },
     });
-  } catch (error) {
-    return res.status(400).json(error);
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : 'Something went wrong!';
+
+    return res.status(400).json({ message: errMsg });
   }
 };
 
 export const fetchUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as User;
-    const user = await findUserById({ id });
+    const user = await findUserById(id);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -229,8 +202,10 @@ export const fetchUser = async (req: Request, res: Response) => {
         })),
       },
     });
-  } catch (error) {
-    return res.status(400).json(error);
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : 'Something went wrong!';
+
+    return res.status(400).json({ message: errMsg });
   }
 };
 

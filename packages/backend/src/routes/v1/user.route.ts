@@ -1,4 +1,5 @@
 import { Router } from 'express';
+
 import {
   register,
   logout,
@@ -6,28 +7,25 @@ import {
   fetchUser,
   updateUser,
 } from '../../controllers/user.controller';
-import {
-  RegisterSchema,
-  LoginSchema,
-  updateUserSchema,
-} from '../../utils/customValidation';
-import {
-  authPassportLocal,
-  isLoggedIn,
-  validateSchema,
-} from '../../middleware';
+import { localLogin } from '../../lib/passport';
+import { isLoggedIn, validateSchema } from '../../middlewares';
+import { registerSchema, updateUserSchema } from '../../schemas/zodSchemas';
 
-const router = Router();
-router.post('/register', validateSchema(RegisterSchema), register);
-router.post('/login', authPassportLocal);
-router.post('/logout', logout);
-router.get('/current-user', isLoggedIn, currentUser);
-router.get('/users/:id', isLoggedIn, fetchUser);
-router.patch(
+const userRouter = Router();
+
+//  POST Methods
+userRouter.post('/register', validateSchema(registerSchema), register);
+userRouter.post('/login', localLogin);
+userRouter.post('/logout', logout);
+// GET Methods
+userRouter.get('/current-user', isLoggedIn, currentUser);
+userRouter.get('/users/:id', isLoggedIn, fetchUser);
+// PATCH Methods
+userRouter.patch(
   '/profile',
-  validateSchema(updateUserSchema),
   isLoggedIn,
+  validateSchema(updateUserSchema),
   updateUser,
 );
 
-export default router;
+export default userRouter;

@@ -1,11 +1,11 @@
-/* eslint-disable import/no-cycle */
 import { Router } from 'express';
+
 import user from './user.route';
 import collection from './collection.route';
 
-const router = Router();
+const v1Router = Router();
 
-router.use(user);
-router.use(collection);
+v1Router.use(user);
+v1Router.use(collection);
 
-export default router;
+export default v1Router;

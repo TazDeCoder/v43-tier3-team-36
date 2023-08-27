@@ -1,13 +1,12 @@
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
+      NODE_ENV?: 'development' | 'production';
+      DATABASE_URL?: string;
       PORT?: string;
-      DATABASE_URL: string;
-      SESSION_SECRET: string;
-      NODE_ENV: 'development' | 'production';
-      PRISMA_LOGGING?: boolean;
+      SESSION_SECRET?: string;
+      DEV_ORIGIN?: string;
+      PROD_ORIGIN?: string;
     }
   }
 }
-
-export {};

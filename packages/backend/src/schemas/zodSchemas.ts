@@ -1,7 +1,6 @@
-import { z, ZodArray } from 'zod';
+import z from 'zod';
 
-export const RegisterSchema = z.object({
-  // In this example we will only validate the body for registration.
+export const registerSchema = z.object({
   body: z.object({
     email: z.string().email(),
     password: z.string().min(6),
@@ -13,17 +12,14 @@ export const RegisterSchema = z.object({
   }),
 });
 
-// In this example we will only validate the request body for login.
-export const LoginSchema = z.object({
+export const loginSchema = z.object({
   body: z.object({
     username: z.string().min(2).max(20),
     password: z.string().min(6),
   }),
 });
 
-// In this example we will validate the request body for assigning collection to user
-
-export const AssignComicSchema = z.object({
+export const assignComicSchema = z.object({
   body: z.object({
     comicId: z
       .number({
@@ -47,7 +43,7 @@ export const AssignComicSchema = z.object({
   }),
 });
 
-export const TradeOfferSchema = z.object({
+export const tradeOfferSchema = z.object({
   body: z.object({
     type: z.string({
       required_error: 'Type is required',
@@ -64,7 +60,7 @@ export const TradeOfferSchema = z.object({
   }),
 });
 
-export const TradeRequestSchema = z.object({
+export const tradeRequestSchema = z.object({
   body: z.object({
     receiverComicId: z
       .number({
@@ -80,7 +76,6 @@ export const TradeRequestSchema = z.object({
 });
 
 export const updateUserSchema = z.object({
-  // In this example we will only validate the body for user update.
   body: z.object({
     email: z.string().email().optional(),
     password: z.string().min(6).optional(),
